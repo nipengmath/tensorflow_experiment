@@ -56,7 +56,9 @@ def build_model(x, y_, is_chief):
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
         logits=y, labels=tf.argmax(y_, 1))
     cross_entropy_mean = tf.reduce_mean(cross_entropy)
-    loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
+    ## 交叉熵损失+正则化损失
+    loss = cross_entropy_mean + tf.add_n(tf.get_collection('reg_loss'))
+    ## 学习率衰减
     learning_rate = tf.train.exponential_decay(
         LEARNING_RATE_BASE, global_step,
         60000 / BATCH_SIZE, LEARNING_RATE_DECAY)
@@ -104,9 +106,10 @@ def main(argv=None):
             server.join()
 
     # 定义计算服务器需要运行的操作。
-    # 在所有的计算服务器中又一个是主计算服务器
-    # 它除了负责计算反向传播的结果，还负责日志和保存模块
+    # 在所有的计算服务器中有一个是主计算服务器，它除了负责计算反向传播的结果，还负责日志和保存模块
     is_chief = (FLAGS.task_index == 0)
+
+    # 读取数据
     mnist = input_data.read_data_sets(DATA_PATH, one_hot=True)
 
     # 通过tf.train.replica_device_setter函数来指定执行每一个运算的设备。

@@ -56,7 +56,7 @@ def build_model(x, y_, n_workers, is_chief):
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
         logits=y, labels=tf.argmax(y_, 1))
     cross_entropy_mean = tf.reduce_mean(cross_entropy)
-    loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
+    loss = cross_entropy_mean + tf.add_n(tf.get_collection('reg_loss'))
     learning_rate = tf.train.exponential_decay(
         LEARNING_RATE_BASE, global_step,
         60000 / BATCH_SIZE, LEARNING_RATE_DECAY)
