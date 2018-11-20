@@ -15,7 +15,7 @@ TRAINING_STEPS = 100000
 MOVING_AVERAGE_DECAY = 0.99
 
 # 模型保存的路径和文件名。
-MODEL_SAVE_PATH = "log_async"
+MODEL_SAVE_PATH = "log_sync"
 DATA_PATH = "MNIST_data"
 # 和异步模式类似的设置flags。
 FLAGS = tf.app.flags.FLAGS
