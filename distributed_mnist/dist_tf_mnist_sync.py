@@ -11,7 +11,7 @@ BATCH_SIZE = 100
 LEARNING_RATE_BASE = 0.8
 LEARNING_RATE_DECAY = 0.99
 REGULARAZTION_RATE = 0.0001
-TRAINING_STEPS = 10000
+TRAINING_STEPS = 100000
 MOVING_AVERAGE_DECAY = 0.99
 
 # 模型保存的路径和文件名。
@@ -73,11 +73,11 @@ def build_model(x, y_, n_workers, is_chief):
 
     # 定义每一轮迭代需要运行的操作。
     if is_chief:
-        # 计算变量的滑动平均值。
-        variable_averages = tf.train.ExponentialMovingAverage(
-            MOVING_AVERAGE_DECAY, global_step)
-        variables_averages_op = variable_averages.apply(
-            tf.trainable_variables())
+        # # 计算变量的滑动平均值。
+        # variable_averages = tf.train.ExponentialMovingAverage(
+        #     MOVING_AVERAGE_DECAY, global_step)
+        # variables_averages_op = variable_averages.apply(
+        #     tf.trainable_variables())
         with tf.control_dependencies([variables_averages_op, train_op]):
             train_op = tf.no_op()
 
