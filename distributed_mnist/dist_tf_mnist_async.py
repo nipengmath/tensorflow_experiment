@@ -38,7 +38,7 @@ tf.app.flags.DEFINE_string(
 # TensorFlow会自动根据参数服务器/计算服务器列表中的端口号来启动服务。
 # 注意参数服务器和计算服务器的编号都是从0开始的。
 tf.app.flags.DEFINE_integer(
-    'task_id', 0, 'Task ID of the worker/replica running the training.')
+    'task_index', 0, 'Task ID of the worker/replica running the training.')
 
 
 # 定义TensorFlow的计算图，并返回每一轮迭代时需要运行的操作。
@@ -95,10 +95,10 @@ def main(argv=None):
     cluster = tf.train.ClusterSpec({"ps": ps_hosts, "worker": worker_hosts})
     # 通过tf.train.ClusterSpec以及当前任务创建tf.train.Server。
     server = tf.train.Server(
-        cluster, job_name=FLAGS.job_name, task_index=FLAGS.task_id)
+        cluster, job_name=FLAGS.job_name, task_index=FLAGS.task_index)
 
     # 参数服务器只需要管理TensorFlow中的变量，不需要执行训练的过程。server.join()会
-    # 一致停在这条语句上。
+    # 一直停在这条语句上。
     if FLAGS.job_name == 'ps':
         with tf.device("/cpu:0"):
             server.join()
@@ -106,14 +106,14 @@ def main(argv=None):
     # 定义计算服务器需要运行的操作。
     # 在所有的计算服务器中又一个是主计算服务器
     # 它除了负责计算反向传播的结果，还负责日志和保存模块
-    is_chief = (FLAGS.task_id == 0)
+    is_chief = (FLAGS.task_index == 0)
     mnist = input_data.read_data_sets(DATA_PATH, one_hot=True)
 
     # 通过tf.train.replica_device_setter函数来指定执行每一个运算的设备。
     # tf.train.replica_device_setter函数会自动将所有的参数分配到参数服务器上，而
     # 计算分配到当前的计算服务器上，
     with tf.device(tf.train.replica_device_setter(
-            worker_device="/job:worker/task:%d" % FLAGS.task_id, cluster=cluster)):
+            worker_device="/job:worker/task:%d" % FLAGS.task_index, cluster=cluster)):
 
         # 定义输入并得到每一轮迭代需要运行的操作。
         x = tf.placeholder(
