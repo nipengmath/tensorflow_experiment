@@ -14,12 +14,17 @@ def get_weight_variable(shape, regularizer):
 
 def inference(input_tensor, regularizer):
     with tf.variable_scope('layer1'):
-
+        # weights: [784, 500]
+        # input_tensor: [batch, 784]
+        # layer1: [batch, 500]
         weights = get_weight_variable([INPUT_NODE, LAYER1_NODE], regularizer)
         biases = tf.get_variable("biases", [LAYER1_NODE], initializer=tf.constant_initializer(0.0))
         layer1 = tf.nn.relu(tf.matmul(input_tensor, weights) + biases)
 
     with tf.variable_scope('layer2'):
+        # weights: [500, 10]
+        # layer1: [batch, 500]
+        # layer2: [batch, 10]
         weights = get_weight_variable([LAYER1_NODE, OUTPUT_NODE], regularizer)
         biases = tf.get_variable("biases", [OUTPUT_NODE], initializer=tf.constant_initializer(0.0))
         layer2 = tf.matmul(layer1, weights) + biases
